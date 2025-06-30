@@ -73,7 +73,7 @@ app.post('/api/chat', async (req, res) => {
         const response = await axios.post(
             PERPLEXITY_API_URL,
             {
-                model: 'pplx-70b-online', // or 'pplx-7b-online' for faster responses
+                model: 'llama-3.1-sonar-small-128k-online', // Updated to valid model
                 messages: messages,
                 temperature: 0.7,
                 max_tokens: 1500,
@@ -202,7 +202,7 @@ app.post('/api/analyze', async (req, res) => {
         const response = await axios.post(
             PERPLEXITY_API_URL,
             {
-                model: 'pplx-70b-online',
+                model: 'llama-3.1-sonar-small-128k-online', // Updated to valid model
                 messages: [
                     {
                         role: 'system',
