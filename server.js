@@ -35,12 +35,66 @@ Format your responses with clear structure, using bullet points for lists and bo
 // Perplexity API configuration
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
 
+// Validate API key on startup
+function validateApiKey() {
+    if (!process.env.PERPLEXITY_API_KEY) {
+        console.error('ERROR: PERPLEXITY_API_KEY not found in environment variables');
+        return false;
+    }
+    
+    if (!process.env.PERPLEXITY_API_KEY.startsWith('pplx-')) {
+        console.error('ERROR: PERPLEXITY_API_KEY appears to be invalid (should start with "pplx-")');
+        return false;
+    }
+    
+    console.log('✓ Perplexity API key found and appears valid');
+    return true;
+}
+
+// Create axios instance with timeout and retry configuration
+const perplexityClient = axios.create({
+    baseURL: 'https://api.perplexity.ai',
+    timeout: 30000, // 30 second timeout
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// Add request interceptor to include auth header
+perplexityClient.interceptors.request.use((config) => {
+    config.headers['Authorization'] = `Bearer ${process.env.PERPLEXITY_API_KEY}`;
+    return config;
+});
+
+// Add response interceptor for better error handling
+perplexityClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.code === 'ECONNABORTED') {
+            console.error('Perplexity API request timed out');
+            error.message = 'Request timed out - please try again';
+        } else if (error.code === 'ECONNRESET' || error.message.includes('socket hang up')) {
+            console.error('Connection to Perplexity API was reset');
+            error.message = 'Connection error - please check your API key and try again';
+        } else if (error.response?.status === 401) {
+            console.error('Perplexity API authentication failed - check your API key');
+            error.message = 'Invalid API key - please check your Perplexity API key';
+        } else if (error.response?.status === 429) {
+            console.error('Perplexity API rate limit exceeded');
+            error.message = 'Rate limit exceeded - please try again later';
+        }
+        return Promise.reject(error);
+    }
+);
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
+    const apiKeyValid = validateApiKey();
     res.json({ 
-        status: 'OK', 
-        message: 'FinanceBot Pro API is running',
-        timestamp: new Date().toISOString()
+        status: apiKeyValid ? 'OK' : 'WARNING', 
+        message: apiKeyValid ? 'FinanceBot Pro API is running' : 'API running but Perplexity API key may be invalid',
+        timestamp: new Date().toISOString(),
+        apiKeyConfigured: !!process.env.PERPLEXITY_API_KEY
     });
 });
 
@@ -51,6 +105,15 @@ app.post('/api/chat', async (req, res) => {
 
         if (!message) {
             return res.status(400).json({ error: 'Message is required' });
+        }
+
+        // Check API key before making request
+        if (!process.env.PERPLEXITY_API_KEY) {
+            return res.status(500).json({
+                success: false,
+                error: 'API key not configured',
+                message: 'Perplexity API key is not configured. Please check your environment variables.'
+            });
         }
 
         // Prepare messages for Perplexity API
@@ -69,26 +132,21 @@ app.post('/api/chat', async (req, res) => {
             }
         ];
 
-        // Call Perplexity API
-        const response = await axios.post(
-            PERPLEXITY_API_URL,
-            {
-                model: 'llama-3.1-sonar-small-128k-online', // Updated to valid model
-                messages: messages,
-                temperature: 0.7,
-                max_tokens: 1500,
-                stream: false
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
+        console.log('Making request to Perplexity API...');
+
+        // Call Perplexity API with improved error handling
+        const response = await perplexityClient.post('/chat/completions', {
+            model: 'llama-3.1-sonar-small-128k-online',
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 1500,
+            stream: false
+        });
 
         // Extract the assistant's response
         const assistantMessage = response.data.choices[0].message.content;
+
+        console.log('✓ Successfully received response from Perplexity API');
 
         res.json({
             success: true,
@@ -97,14 +155,30 @@ app.post('/api/chat', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Chat API Error:', error.response?.data || error.message);
+        console.error('Chat API Error:', error.message);
         
-        res.status(500).json({
+        let errorMessage = 'An error occurred while processing your request';
+        let statusCode = 500;
+
+        if (error.message.includes('Invalid API key')) {
+            errorMessage = 'Invalid Perplexity API key. Please check your configuration.';
+            statusCode = 401;
+        } else if (error.message.includes('Connection error')) {
+            errorMessage = 'Unable to connect to Perplexity API. Please check your internet connection and API key.';
+            statusCode = 503;
+        } else if (error.message.includes('Rate limit exceeded')) {
+            errorMessage = 'API rate limit exceeded. Please try again in a few moments.';
+            statusCode = 429;
+        } else if (error.message.includes('Request timed out')) {
+            errorMessage = 'Request timed out. Please try again.';
+            statusCode = 408;
+        }
+        
+        res.status(statusCode).json({
             success: false,
-            error: 'Failed to process chat request',
-            message: process.env.NODE_ENV === 'development' 
-                ? error.response?.data?.error || error.message 
-                : 'An error occurred while processing your request'
+            error: 'Chat API Error',
+            message: errorMessage,
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
@@ -191,6 +265,15 @@ app.post('/api/analyze', async (req, res) => {
     try {
         const { commodity, timeframe = '1D' } = req.body;
 
+        // Check API key before making request
+        if (!process.env.PERPLEXITY_API_KEY) {
+            return res.status(500).json({
+                success: false,
+                error: 'API key not configured',
+                message: 'Perplexity API key is not configured. Please check your environment variables.'
+            });
+        }
+
         // Create a specific analysis request for Perplexity
         const analysisPrompt = `Provide a technical and fundamental analysis for ${commodity} with a ${timeframe} timeframe. Include:
         1. Current market trends
@@ -199,30 +282,25 @@ app.post('/api/analyze', async (req, res) => {
         4. Short-term outlook
         5. Trading recommendation`;
 
-        const response = await axios.post(
-            PERPLEXITY_API_URL,
-            {
-                model: 'llama-3.1-sonar-small-128k-online', // Updated to valid model
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'You are a professional financial analyst providing market analysis.'
-                    },
-                    {
-                        role: 'user',
-                        content: analysisPrompt
-                    }
-                ],
-                temperature: 0.7,
-                max_tokens: 1000
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-                    'Content-Type': 'application/json'
+        console.log('Making analysis request to Perplexity API...');
+
+        const response = await perplexityClient.post('/chat/completions', {
+            model: 'llama-3.1-sonar-small-128k-online',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a professional financial analyst providing market analysis.'
+                },
+                {
+                    role: 'user',
+                    content: analysisPrompt
                 }
-            }
-        );
+            ],
+            temperature: 0.7,
+            max_tokens: 1000
+        });
+
+        console.log('✓ Successfully received analysis from Perplexity API');
 
         res.json({
             success: true,
@@ -233,10 +311,24 @@ app.post('/api/analyze', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Analysis API Error:', error);
-        res.status(500).json({
+        console.error('Analysis API Error:', error.message);
+        
+        let errorMessage = 'Failed to generate market analysis';
+        let statusCode = 500;
+
+        if (error.message.includes('Invalid API key')) {
+            errorMessage = 'Invalid Perplexity API key. Please check your configuration.';
+            statusCode = 401;
+        } else if (error.message.includes('Connection error')) {
+            errorMessage = 'Unable to connect to Perplexity API. Please check your internet connection and API key.';
+            statusCode = 503;
+        }
+
+        res.status(statusCode).json({
             success: false,
-            error: 'Failed to generate market analysis'
+            error: 'Analysis API Error',
+            message: errorMessage,
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
@@ -251,10 +343,8 @@ app.listen(PORT, () => {
     console.log(`FinanceBot Pro server running on port ${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     
-    // Check if API key is configured
-    if (!process.env.PERPLEXITY_API_KEY) {
-        console.warn('WARNING: PERPLEXITY_API_KEY not found in environment variables');
-    }
+    // Validate API key on startup
+    validateApiKey();
 });
 
 // Graceful shutdown
