@@ -136,7 +136,7 @@ app.post('/api/chat', async (req, res) => {
 
         // Call Perplexity API with improved error handling
         const response = await perplexityClient.post('/chat/completions', {
-            model: 'llama-3.1-sonar-small-128k-online',
+            model: 'llama-3.1-sonar-large-128k-online',
             messages: messages,
             temperature: 0.7,
             max_tokens: 1500,
