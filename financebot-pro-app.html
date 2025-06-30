@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceBot Pro - Financial Chatbot</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+:root {
+  /* Colors */
+  --color-background: rgba(252, 252, 249, 1);
+  --color-surface: rgba(255, 255, 253, 1);
+  --color-text: rgba(19, 52, 59, 1);
+  --color-text-secondary: rgba(98, 108, 113, 1);
+  --color-primary: rgba(33, 128, 141, 1);
+  --color-primary-hover: rgba(29, 116, 128, 1);
+  --color-primary-active: rgba(26, 104, 115, 1);
+  --color-secondary: rgba(94, 82, 64, 0.12);
+  --color-secondary-hover: rgba(94, 82, 64, 0.2);
+  --color-secondary-active: rgba(94, 82, 64, 0.25);
+  --color-border: rgba(94, 82, 64, 0.2);
+  --color-btn-primary-text: rgba(252, 252, 249, 1);
+  --color-card-border: rgba(94, 82, 64, 0.12);
+  --color-card-border-inner: rgba(94, 82, 64, 0.12);
+  --color-error: rgba(192, 21, 47, 1);
+  --color-success: rgba(33, 128, 141, 1);
+  --color-warning: rgba(168, 75, 47, 1);
+  --color-info: rgba(98, 108, 113, 1);
+  --color-focus-ring: rgba(33, 128, 141, 0.4);
+  --color-select-caret: rgba(19, 52, 59, 0.8);
+
+  /* Common style patterns */
+  --focus-ring: 0 0 0 3px var(--color-focus-ring);
+  --focus-outline: 2px solid var(--color-primary);
+  --status-bg-opacity: 0.15;
+  --status-border-opacity: 0.25;
+  --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
+  /* RGB versions for opacity control */
+  --color-success-rgb: 33, 128, 141;
+  --color-error-rgb: 192, 21, 47;
+  --color-warning-rgb: 168, 75, 47;
+  --color-info-rgb: 98, 108, 113;
+
+  /* Typography */
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 30px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 600;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --letter-spacing-tight: -0.01em;
+
+  /* Spacing */
+  --space-0: 0;
+  --space-1: 1px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04),
+    0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+
+  /* Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Layout */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: rgba(31, 33, 33, 1);
+    --color-surface: rgba(38, 40, 40, 1);
+    --color-text: rgba(245, 245, 245, 1);
+    --color-text-secondary: rgba(167, 169, 169, 0.7);
+    --color-primary: rgba(50, 184, 198, 1);
+    --color-primary-hover: rgba(45, 166, 178, 1);
+    --color-primary-active: rgba(41, 150, 161, 1);
+    --color-secondary: rgba(119, 124, 124, 0.15);
+    --color-secondary-hover: rgba(119, 124, 124, 0.25);
+    --color-secondary-active: rgba(119, 124, 124, 0.3);
+    --color-border: rgba(119, 124, 124, 0.3);
+    --color-error: rgba(255, 84, 89, 1);
+    --color-success: rgba(50, 184, 198, 1);
+    --color-warning: rgba(230, 129, 97, 1);
+    --color-info: rgba(167, 169, 169, 1);
+    --color-focus-ring: rgba(50, 184, 198, 0.4);
+    --color-btn-primary-text: rgba(19, 52, 59, 1);
+    --color-card-border: rgba(119, 124, 124, 0.2);
+    --color-card-border-inner: rgba(119, 124, 124, 0.15);
+    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    --button-border-secondary: rgba(119, 124, 124, 0.2);
+    --color-border-secondary: rgba(119, 124, 124, 0.2);
+    --color-select-caret: rgba(245, 245, 245, 0.8);
+
+    /* Common style patterns - updated for dark mode */
+    --focus-ring: 0 0 0 3px var(--color-focus-ring);
+    --focus-outline: 2px solid var(--color-primary);
+    --status-bg-opacity: 0.15;
+    --status-border-opacity: 0.25;
+    --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
+    /* RGB versions for dark mode */
+    --color-success-rgb: 50, 184, 198;
+    --color-error-rgb: 255, 84, 89;
+    --color-warning-rgb: 230, 129, 97;
+    --color-info-rgb: 167, 169, 169;
+  }
+}
+
+/* Data attribute for manual theme switching */
+[data-color-scheme="dark"] {
+  --color-background: rgba(31, 33, 33, 1);
+  --color-surface: rgba(38, 40, 40, 1);
+  --color-text: rgba(245, 245, 245, 1);
+  --color-text-secondary: rgba(167, 169, 169, 0.7);
+  --color-primary: rgba(50, 184, 198, 1);
+  --color-primary-hover: rgba(45, 166, 178, 1);
+  --color-primary-active: rgba(41, 150, 161, 1);
+  --color-secondary: rgba(119, 124, 124, 0.15);
+  --color-secondary-hover: rgba(119, 124, 124, 0.25);
+  --color-secondary-active: rgba(119, 124, 124, 0.3);
+  --color-border: rgba(119, 124, 124, 0.3);
+  --color-error: rgba(255, 84, 89, 1);
+  --color-success: rgba(50, 184, 198, 1);
+  --color-warning: rgba(230, 129, 97, 1);
+  --color-info: rgba(167, 169, 169, 1);
+  --color-focus-ring: rgba(50, 184, 198, 0.4);
+  --color-btn-primary-text: rgba(19, 52, 59, 1);
+  --color-card-border: rgba(119, 124, 124, 0.15);
+  --color-card-border-inner: rgba(119, 124, 124, 0.15);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  --color-border-secondary: rgba(119, 124, 124, 0.2);
+  --color-select-caret: rgba(245, 245, 245, 0.8);
+
+  /* Common style patterns - updated for dark mode */
+  --focus-ring: 0 0 0 3px var(--color-focus-ring);
+  --focus-outline: 2px solid var(--color-primary);
+  --status-bg-opacity: 0.15;
+  --status-border-opacity: 0.25;
+  --select-caret-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23134252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  --select-caret-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5f5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+
+  /* RGB versions for dark mode */
+  --color-success-rgb: 50, 184, 198;
+  --color-error-rgb: 255, 84, 89;
+  --color-warning-rgb: 230, 129, 97;
+  --color-info-rgb: 167, 169, 169;
+}
+
+[data-color-scheme="light"] {
+  --color-background: rgba(252, 252, 249, 1);
+  --color-surface: rgba(255, 255, 253, 1);
+  --color-text: rgba(19, 52, 59, 1);
+  --color-text-secondary: rgba(98, 108, 113, 1);
+  --color-primary: rgba(33, 128, 141, 1);
+  --color-primary-hover: rgba(29, 116, 128, 1);
+  --color-primary-active: rgba(26, 104, 115, 1);
+  --color-secondary: rgba(94, 82, 64, 0.12);
+  --color-secondary-hover: rgba(94, 82, 64, 0.2);
+  --color-secondary-active: rgba(94, 82, 64, 0.25);
+  --color-border: rgba(94, 82, 64, 0.2);
+  --color-btn-primary-text: rgba(252, 252, 249, 1);
+  --color-card-border: rgba(94, 82, 64, 0.12);
+  --color-card-border-inner: rgba(94, 82, 64, 0.12);
+  --color-error: rgba(192, 21, 47, 1);
+  --color-success: rgba(33, 128, 141, 1);
+  --color-warning: rgba(168, 75, 47, 1);
+  --color-info: rgba(98, 108, 113, 1);
+  --color-focus-ring: rgba(33, 128, 141, 0.4);
+
+  /* RGB versions for light mode */
+  --color-success-rgb: 33, 128, 141;
+  --color-error-rgb: 192, 21, 47;
+  --color-warning-rgb: 168, 75, 47;
+  --color-info-rgb: 98, 108, 113;
+}
+
+/* Base styles */
+html {
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+h1 {
+  font-size: var(--font-size-4xl);
+}
+h2 {
+  font-size: var(--font-size-3xl);
+}
+h3 {
+  font-size: var(--font-size-2xl);
+}
+h4 {
+  font-size: var(--font-size-xl);
+}
+h5 {
+  font-size: var(--font-size-lg);
+}
+h6 {
+  font-size: var(--font-size-md);
+}
+
+p {
+  margin: 0 0 var(--space-16) 0;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+code,
+pre {
+  font-family: var(--font-family-mono);
+  font-size: calc(var(--font-size-base) * 0.95);
+  background-color: var(--color-secondary);
+  border-radius: var(--radius-sm);
+}
+
+code {
+  padding: var(--space-1) var(--space-4);
+}
+
+pre {
+  padding: var(--space-16);
+  margin: var(--space-16) 0;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-standard);
+  border: none;
+  text-decoration: none;
+  position: relative;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn--primary:active {
+  background: var(--color-primary-active);
+}
+
+.btn--secondary {
+  background: var(--color-secondary);
+  color: var(--color-text);
+}
+
+.btn--secondary:hover {
+  background: var(--color-secondary-hover);
+}
+
+.btn--secondary:active {
+  background: var(--color-secondary-active);
+}
+
+.btn--outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.btn--outline:hover {
+  background: var(--color-secondary);
+}
+
+.btn--sm {
+  padding: var(--space-4) var(--space-12);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-sm);
+}
+
+.btn--lg {
+  padding: var(--space-10) var(--space-20);
+  font-size: var(--font-size-lg);
+  border-radius: var(--radius-md);
+}
+
+.btn--full-width {
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form elements */
+.form-control {
+  display: block;
+  width: 100%;
+  padding: var(--space-8) var(--space-12);
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  transition: border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+textarea.form-control {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+}
+
+select.form-control {
+  padding: var(--space-8) var(--space-12);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: var(--select-caret-light);
+  background-repeat: no-repeat;
+  background-position: right var(--space-12) center;
+  background-size: 16px;
+  padding-right: var(--space-32);
+}
+
+/* Add a dark mode specific caret */
+@media (prefers-color-scheme: dark) {
+  select.form-control {
+    background-image: var(--select-caret-dark);
+  }
+}
+
+/* Also handle data-color-scheme */
+[data-color-scheme="dark"] select.form-control {
+  background-image: var(--select-caret-dark);
+}
+
+[data-color-scheme="light"] select.form-control {
+  background-image: var(--select-caret-light);
+}
+
+.form-control:focus {
+  border-color: var(--color-primary);
+  outline: var(--focus-outline);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-8);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+}
+
+.form-group {
+  margin-bottom: var(--space-16);
+}
+
+/* Card component */
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-card-border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow var(--duration-normal) var(--ease-standard);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card__body {
+  padding: var(--space-16);
+}
+
+.card__header,
+.card__footer {
+  padding: var(--space-16);
+  border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+/* Status indicators - simplified with CSS variables */
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-6) var(--space-12);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+}
+
+.status--success {
+  background-color: rgba(
+    var(--color-success-rgb, 33, 128, 141),
+    var(--status-bg-opacity)
+  );
+  color: var(--color-success);
+  border: 1px solid
+    rgba(var(--color-success-rgb, 33, 128, 141), var(--status-border-opacity));
+}
+
+.status--error {
+  background-color: rgba(
+    var(--color-error-rgb, 192, 21, 47),
+    var(--status-bg-opacity)
+  );
+  color: var(--color-error);
+  border: 1px solid
+    rgba(var(--color-error-rgb, 192, 21, 47), var(--status-border-opacity));
+}
+
+.status--warning {
+  background-color: rgba(
+    var(--color-warning-rgb, 168, 75, 47),
+    var(--status-bg-opacity)
+  );
+  color: var(--color-warning);
+  border: 1px solid
+    rgba(var(--color-warning-rgb, 168, 75, 47), var(--status-border-opacity));
+}
+
+.status--info {
+  background-color: rgba(
+    var(--color-info-rgb, 98, 108, 113),
+    var(--status-bg-opacity)
+  );
+  color: var(--color-info);
+  border: 1px solid
+    rgba(var(--color-info-rgb, 98, 108, 113), var(--status-border-opacity));
+}
+
+/* Container layout */
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: var(--space-16);
+  padding-left: var(--space-16);
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: var(--container-sm);
+  }
+}
+@media (min-width: 768px) {
+  .container {
+    max-width: var(--container-md);
+  }
+}
+@media (min-width: 1024px) {
+  .container {
+    max-width: var(--container-lg);
+  }
+}
+@media (min-width: 1280px) {
+  .container {
+    max-width: var(--container-xl);
+  }
+}
+
+/* Utility classes */
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.gap-4 {
+  gap: var(--space-4);
+}
+.gap-8 {
+  gap: var(--space-8);
+}
+.gap-16 {
+  gap: var(--space-16);
+}
+
+.m-0 {
+  margin: 0;
+}
+.mt-8 {
+  margin-top: var(--space-8);
+}
+.mb-8 {
+  margin-bottom: var(--space-8);
+}
+.mx-8 {
+  margin-left: var(--space-8);
+  margin-right: var(--space-8);
+}
+.my-8 {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-8);
+}
+
+.p-0 {
+  padding: 0;
+}
+.py-8 {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
+}
+.px-8 {
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+.py-16 {
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-16);
+}
+.px-16 {
+  padding-left: var(--space-16);
+  padding-right: var(--space-16);
+}
+
+.block {
+  display: block;
+}
+.hidden {
+  display: none;
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+:focus-visible {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+}
+
+/* Dark mode specifics */
+[data-color-scheme="dark"] .btn--outline {
+  border: 1px solid var(--color-border-secondary);
+}
+
+@font-face {
+  font-family: 'FKGroteskNeue';
+  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2')
+    format('woff2');
+}
+
+/* Financial Dark Theme */
+:root {
+  --financial-bg: #0a0b0d;
+  --financial-surface: #111318;
+  --financial-panel: #1a1d24;
+  --financial-border: #2a2d35;
+  --financial-text: #e4e4e7;
+  --financial-text-muted: #9ca3af;
+  --financial-accent: #22d3ee;
+  --financial-success: #22c55e;
+  --financial-danger: #ef4444;
+  --financial-warning: #f59e0b;
+  --financial-hover: #374151;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--financial-bg);
+  color: var(--financial-text);
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.app-header {
+  background: var(--financial-surface);
+  border-bottom: 1px solid var(--financial-border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--financial-accent);
+}
+
+.market-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-indicator--open {
+  background-color: var(--financial-success);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.status-text {
+  color: var(--financial-success);
+  font-weight: 500;
+}
+
+.last-updated {
+  color: var(--financial-text-muted);
+}
+
+/* Main Layout */
+.app-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Sidebar */
+.sidebar-left {
+  width: 280px;
+  background: var(--financial-panel);
+  border-right: 1px solid var(--financial-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--financial-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--financial-text);
+}
+
+.refresh-btn {
+  background: none;
+  border: none;
+  color: var(--financial-text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+  color: var(--financial-accent);
+  background: var(--financial-hover);
+}
+
+/* Commodity List */
+.commodity-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.commodity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--financial-surface);
+  border: 1px solid var(--financial-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.commodity-item:hover {
+  background: var(--financial-hover);
+  border-color: var(--financial-accent);
+}
+
+.commodity-info h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.commodity-unit {
+  font-size: 0.75rem;
+  color: var(--financial-text-muted);
+}
+
+.commodity-price {
+  text-align: right;
+}
+
+.price-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: block;
+}
+
+.price-change {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.price-change--positive {
+  color: var(--financial-success);
+}
+
+.price-change--negative {
+  color: var(--financial-danger);
+}
+
+/* Portfolio Section */
+.portfolio-section {
+  border-top: 1px solid var(--financial-border);
+  padding: 1rem;
+}
+
+.portfolio-section h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.portfolio-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.portfolio-total {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.portfolio-change {
+  font-size: 0.875rem;
+  color: var(--financial-success);
+}
+
+.empty-portfolio {
+  color: var(--financial-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* Chat Container */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--financial-surface);
+  position: relative;
+}
+
+.chat-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--financial-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.chat-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--financial-text-muted);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--financial-success);
+  border-radius: 50%;
+}
+
+/* Chat Messages */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 85%;
+}
+
+.bot-message {
+  align-self: flex-start;
+}
+
+.user-message {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--financial-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-message .message-avatar {
+  background: var(--financial-warning);
+}
+
+.message-content {
+  background: var(--financial-panel);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--financial-border);
+}
+
+.user-message .message-content {
+  background: var(--financial-accent);
+  color: var(--financial-bg);
+}
+
+.message-content p {
+  margin-bottom: 0.5rem;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-content ul {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+
+.message-content li {
+  margin-bottom: 0.25rem;
+  color: var(--financial-text-muted);
+}
+
+/* Typing Indicator */
+.typing-indicator {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: var(--financial-text-muted);
+  font-size: 0.875rem;
+}
+
+.typing-indicator.show {
+  display: flex;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 4px;
+  height: 4px;
+  background: var(--financial-accent);
+  border-radius: 50%;
+  animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% { opacity: 0.3; }
+  30% { opacity: 1; }
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--financial-border);
+  flex-wrap: wrap;
+}
+
+.quick-action-btn {
+  background: var(--financial-panel);
+  border: 1px solid var(--financial-border);
+  color: var(--financial-text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-action-btn:hover {
+  background: var(--financial-hover);
+  border-color: var(--financial-accent);
+}
+
+/* Chat Input */
+.chat-input-container {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid var(--financial-border);
+  background: var(--financial-panel);
+}
+
+#chatInput {
+  flex: 1;
+  background: var(--financial-surface);
+  border: 1px solid var(--financial-border);
+  color: var(--financial-text);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+#chatInput:focus {
+  outline: none;
+  border-color: var(--financial-accent);
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2);
+}
+
+.send-btn {
+  background: var(--financial-accent);
+  border: none;
+  color: var(--financial-bg);
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-btn:hover {
+  background: #0891b2;
+}
+
+/* Right Sidebar - Charts */
+.sidebar-right {
+  width: 320px;
+  background: var(--financial-panel);
+  border-left: 1px solid var(--financial-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chart-controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.chart-control-btn {
+  background: none;
+  border: 1px solid var(--financial-border);
+  color: var(--financial-text-muted);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chart-control-btn.active,
+.chart-control-btn:hover {
+  background: var(--financial-accent);
+  color: var(--financial-bg);
+  border-color: var(--financial-accent);
+}
+
+.chart-container {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.chart-placeholder {
+  text-align: center;
+  color: var(--financial-text-muted);
+}
+
+.chart-placeholder svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+#chartCanvas {
+  width: 100% !important;
+  height: 300px !important;
+}
+
+.chart-data {
+  border-top: 1px solid var(--financial-border);
+  padding: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.data-table {
+  width: 100%;
+  font-size: 0.75rem;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--financial-border);
+}
+
+.data-table th {
+  color: var(--financial-text-muted);
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar-right {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    flex-direction: column;
+  }
+  
+  .sidebar-left,
+  .sidebar-right {
+    width: 100%;
+    height: 200px;
+    border: none;
+    border-bottom: 1px solid var(--financial-border);
+  }
+  
+  .chat-container {
+    flex: 1;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--financial-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--financial-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--financial-text-muted);
+}
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">FinanceBot Pro</h1>
+            <div class="market-status">
+                <span class="status-indicator status-indicator--open"></span>
+                <span class="status-text">Markets Open</span>
+                <span class="last-updated">Last updated: 2:20 PM EST</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Left Sidebar - Market Overview -->
+            <div class="sidebar-left">
+                <div class="sidebar-header">
+                    <h2>Market Overview</h2>
+                    <button class="refresh-btn" id="refreshBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6m-2 10v6l-8-8 8-8v6h8"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="commodity-list" id="commodityList">
+                    <!-- Commodity items will be populated by JavaScript -->
+                </div>
+                
+                <div class="portfolio-section">
+                    <h3>Portfolio</h3>
+                    <div class="portfolio-value">
+                        <span class="portfolio-total">$0.00</span>
+                        <span class="portfolio-change">+0.00%</span>
+                    </div>
+                    <div class="portfolio-holdings" id="portfolioHoldings">
+                        <p class="empty-portfolio">No holdings yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Central Chat Interface -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Financial Assistant</h2>
+                    <div class="chat-status">
+                        <span class="status-dot"></span>
+                        <span>Online</span>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot-message">
+                        <div class="message-avatar">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+                            </svg>
+                        </div>
+                        <div class="message-content">
+                            <p>Welcome to FinanceBot Pro! I'm here to help you with commodity prices, market analysis, and portfolio management.</p>
+                            <p>Try asking me about:</p>
+                            <ul>
+                                <li>"gold price" - Current gold prices with chart</li>
+                                <li>"oil review" - Weekly oil market analysis</li>
+                                <li>"silver vs gold" - Compare commodities</li>
+                                <li>"add AAPL to portfolio" - Portfolio management</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span>Bot is typing...</span>
+                </div>
+
+                <div class="quick-actions">
+                    <button class="quick-action-btn" data-query="gold price">Gold Price</button>
+                    <button class="quick-action-btn" data-query="oil prices">Oil Prices</button>
+                    <button class="quick-action-btn" data-query="silver price">Silver Price</button>
+                    <button class="quick-action-btn" data-query="oil review">Oil Review</button>
+                </div>
+
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask about commodity prices, market analysis, or portfolio..." class="form-control">
+                    <button class="send-btn" id="sendBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel - Data Visualization -->
+            <div class="sidebar-right">
+                <div class="sidebar-header">
+                    <h2>Data Visualization</h2>
+                    <div class="chart-controls">
+                        <button class="chart-control-btn active" data-type="line">Line</button>
+                        <button class="chart-control-btn" data-type="bar">Bar</button>
+                    </div>
+                </div>
+                <div class="chart-container" id="chartContainer">
+                    <div class="chart-placeholder">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <path d="M3 3v18h18M8 12l4-4 4 4 4-4"/>
+                        </svg>
+                        <p>Charts will appear here when you ask about commodity prices</p>
+                    </div>
+                    <canvas id="chartCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <div class="chart-data" id="chartData">
+                    <!-- Chart data table will appear here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+// Financial Chatbot Application
+class FinanceBotPro {
+    constructor() {
+        this.commodityData = {
+            "gold": {"price": 3272.50, "change": -53.70, "change_percent": -1.61, "unit": "USD per ounce", "high_52w": 3435.00, "low_52w": 2950.00},
+            "silver": {"price": 41.25, "change": -0.35, "change_percent": -0.84, "unit": "USD per ounce", "high_52w": 45.20, "low_52w": 28.50},
+            "wti_oil": {"price": 67.25, "change": -2.11, "change_percent": -3.04, "unit": "USD per barrel", "high_52w": 89.50, "low_52w": 64.50},
+            "brent_oil": {"price": 68.45, "change": -3.05, "change_percent": -4.27, "unit": "USD per barrel", "high_52w": 91.25, "low_52w": 66.00},
+            "natural_gas": {"price": 3.41, "change": -0.58, "change_percent": -14.54, "unit": "USD per MMBtu", "high_52w": 5.85, "low_52w": 2.95},
+            "copper": {"price": 9850.50, "change": 125.30, "change_percent": 1.29, "unit": "USD per tonne", "high_52w": 10500.00, "low_52w": 8200.00}
+        };
+
+        this.oilWeeklyData = {
+            "dates": ["2025-06-23", "2025-06-24", "2025-06-25", "2025-06-26", "2025-06-27"],
+            "wti_prices": [69.36, 65.25, 64.80, 66.50, 67.25],
+            "brent_prices": [71.50, 67.45, 67.00, 68.20, 68.45],
+            "volumes": [485000, 541000, 425000, 398000, 412000],
+            "events": ["Iran-Israel tensions peak", "Ceasefire announced", "Inventory data mixed", "OPEC+ rumors", "Weekly close"]
+        };
+
+        this.portfolio = [];
+        this.currentChart = null;
+        this.chatHistory = [];
+        
+        this.init();
+    }
+
+    init() {
+        this.renderCommodities();
+        this.bindEvents();
+        this.setupChat();
+    }
+
+    bindEvents() {
+        // Chat input events
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendMessage();
+            }
+        });
+        
+        sendBtn.addEventListener('click', () => {
+            this.sendMessage();
+        });
+
+        // Quick action buttons
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const query = e.target.dataset.query;
+                this.processQuery(query);
+            });
+        });
+
+        // Commodity items click
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.commodity-item')) {
+                const commodityName = e.target.closest('.commodity-item').dataset.commodity;
+                this.processQuery(`${commodityName} price`);
+            }
+        });
+
+        // Chart controls
+        document.querySelectorAll('.chart-control-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.chart-control-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.updateChartType(e.target.dataset.type);
+            });
+        });
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            this.refreshData();
+        });
+    }
+
+    renderCommodities() {
+        const commodityList = document.getElementById('commodityList');
+        commodityList.innerHTML = '';
+
+        Object.entries(this.commodityData).forEach(([key, data]) => {
+            const item = document.createElement('div');
+            item.className = 'commodity-item';
+            item.dataset.commodity = key.replace('_', ' ');
+            
+            const changeClass = data.change >= 0 ? 'price-change--positive' : 'price-change--negative';
+            const changeSymbol = data.change >= 0 ? '+' : '';
+            
+            item.innerHTML = `
+                <div class="commodity-info">
+                    <h4>${this.formatCommodityName(key)}</h4>
+                    <span class="commodity-unit">${data.unit}</span>
+                </div>
+                <div class="commodity-price">
+                    <span class="price-value">$${data.price.toFixed(2)}</span>
+                    <div class="price-change ${changeClass}">
+                        <span>${changeSymbol}${data.change.toFixed(2)}</span>
+                        <span>(${changeSymbol}${data.change_percent.toFixed(2)}%)</span>
+                    </div>
+                </div>
+            `;
+            
+            commodityList.appendChild(item);
+        });
+    }
+
+    formatCommodityName(key) {
+        const names = {
+            'gold': 'Gold',
+            'silver': 'Silver',
+            'wti_oil': 'WTI Oil',
+            'brent_oil': 'Brent Oil',
+            'natural_gas': 'Natural Gas',
+            'copper': 'Copper'
+        };
+        return names[key] || key;
+    }
+
+    setupChat() {
+        // Initial welcome message is already in HTML
+        this.chatHistory.push({
+            type: 'bot',
+            message: 'Welcome to FinanceBot Pro! I\'m here to help you with commodity prices, market analysis, and portfolio management.'
+        });
+    }
+
+    sendMessage() {
+        const chatInput = document.getElementById('chatInput');
+        const message = chatInput.value.trim();
+        
+        if (!message) return;
+        
+        this.addMessage('user', message);
+        chatInput.value = '';
+        
+        this.showTypingIndicator();
+        
+        // Process query after a brief delay for UX
+        setTimeout(() => {
+            this.processQuery(message);
+            this.hideTypingIndicator();
+        }, 1000);
+    }
+
+    addMessage(type, message) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${type}-message`;
+        
+        const avatar = type === 'bot' ? 
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/></svg>' :
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+        
+        messageElement.innerHTML = `
+            <div class="message-avatar">${avatar}</div>
+            <div class="message-content">${message}</div>
+        `;
+        
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        this.chatHistory.push({ type, message });
+    }
+
+    showTypingIndicator() {
+        document.getElementById('typingIndicator').classList.add('show');
+    }
+
+    hideTypingIndicator() {
+        document.getElementById('typingIndicator').classList.remove('show');
+    }
+
+    processQuery(query) {
+        const lowerQuery = query.toLowerCase().trim();
+        
+        // Natural Language Processing for commodity queries
+        if (this.isGoldQuery(lowerQuery)) {
+            this.handleCommodityQuery('gold');
+        } else if (this.isSilverQuery(lowerQuery)) {
+            this.handleCommodityQuery('silver');
+        } else if (this.isOilQuery(lowerQuery)) {
+            this.handleOilQuery();
+        } else if (this.isOilReviewQuery(lowerQuery)) {
+            this.handleOilReview();
+        } else if (this.isNaturalGasQuery(lowerQuery)) {
+            this.handleCommodityQuery('natural_gas');
+        } else if (this.isCopperQuery(lowerQuery)) {
+            this.handleCommodityQuery('copper');
+        } else if (this.isComparisonQuery(lowerQuery)) {
+            this.handleComparisonQuery(lowerQuery);
+        } else if (this.isPortfolioQuery(lowerQuery)) {
+            this.handlePortfolioQuery(lowerQuery);
+        } else if (this.isFinancialQuery(lowerQuery)) {
+            this.handleGeneralFinancialQuery(lowerQuery);
+        } else {
+            this.handleNonFinancialQuery();
+        }
+    }
+
+    // Query detection methods
+    isGoldQuery(query) {
+        return query.includes('gold') && (query.includes('price') || query.includes('cost') || query.includes('value') || query === 'gold');
+    }
+
+    isSilverQuery(query) {
+        return query.includes('silver') && (query.includes('price') || query.includes('cost') || query.includes('value') || query === 'silver');
+    }
+
+    isOilQuery(query) {
+        return (query.includes('oil') || query.includes('wti') || query.includes('brent')) && 
+               (query.includes('price') || query.includes('prices')) && 
+               !query.includes('review') && !query.includes('analysis');
+    }
+
+    isOilReviewQuery(query) {
+        return query.includes('oil') && 
+               (query.includes('review') || query.includes('analysis') || query.includes('last week') || query.includes('weekly'));
+    }
+
+    isNaturalGasQuery(query) {
+        return (query.includes('natural gas') || query.includes('gas')) && 
+               (query.includes('price') || query.includes('cost') || query === 'natural gas' || query === 'gas');
+    }
+
+    isCopperQuery(query) {
+        return query.includes('copper') && (query.includes('price') || query.includes('cost') || query === 'copper');
+    }
+
+    isComparisonQuery(query) {
+        return query.includes('vs') || query.includes('compare') || query.includes('comparison');
+    }
+
+    isPortfolioQuery(query) {
+        return query.includes('portfolio') || query.includes('add') || query.includes('remove') || 
+               query.includes('holding') || query.includes('holdings');
+    }
+
+    isFinancialQuery(query) {
+        const financialTerms = ['market', 'trading', 'investment', 'stock', 'commodity', 'forex', 'crypto', 'finance'];
+        return financialTerms.some(term => query.includes(term));
+    }
+
+    // Query handlers
+    handleCommodityQuery(commodity) {
+        const data = this.commodityData[commodity];
+        const name = this.formatCommodityName(commodity);
+        
+        const changeText = data.change >= 0 ? 
+            `up ${data.change.toFixed(2)} (+${data.change_percent.toFixed(2)}%)` :
+            `down ${Math.abs(data.change).toFixed(2)} (${data.change_percent.toFixed(2)}%)`;
+        
+        const response = `
+            <p><strong>${name} Current Price: $${data.price.toFixed(2)}</strong></p>
+            <p>The price is ${changeText} from the previous close.</p>
+            <p><strong>52-Week Range:</strong> $${data.low_52w.toFixed(2)} - $${data.high_52w.toFixed(2)}</p>
+            <p><strong>Unit:</strong> ${data.unit}</p>
+            <p>I've generated a price chart for you in the Data Visualization panel.</p>
+        `;
+        
+        this.addMessage('bot', response);
+        this.generateCommodityChart(commodity);
+    }
+
+    handleOilQuery() {
+        const wtiData = this.commodityData.wti_oil;
+        const brentData = this.commodityData.brent_oil;
+        
+        const response = `
+            <p><strong>Oil Prices Today:</strong></p>
+            <p><strong>WTI Crude:</strong> $${wtiData.price.toFixed(2)} (${wtiData.change >= 0 ? '+' : ''}${wtiData.change_percent.toFixed(2)}%)</p>
+            <p><strong>Brent Crude:</strong> $${brentData.price.toFixed(2)} (${brentData.change >= 0 ? '+' : ''}${brentData.change_percent.toFixed(2)}%)</p>
+            <p>The Brent-WTI spread is currently $${(brentData.price - wtiData.price).toFixed(2)} per barrel.</p>
+            <p>I've generated a comparison chart showing both oil benchmarks.</p>
+        `;
+        
+        this.addMessage('bot', response);
+        this.generateOilComparisonChart();
+    }
+
+    handleOilReview() {
+        const response = `
+            <p><strong>Weekly Oil Market Review (June 23-27, 2025)</strong></p>
+            <p>This week has been volatile for oil markets, with several key events driving price action:</p>
+            <ul>
+                <li><strong>Monday:</strong> Iran-Israel tensions peaked, pushing prices higher on supply concerns</li>
+                <li><strong>Tuesday:</strong> Ceasefire announcement led to profit-taking and price decline</li>
+                <li><strong>Wednesday:</strong> Mixed inventory data provided little direction</li>
+                <li><strong>Thursday:</strong> OPEC+ production rumors created uncertainty</li>
+                <li><strong>Friday:</strong> Week closed with modest gains despite earlier volatility</li>
+            </ul>
+            <p><strong>Weekly Performance:</strong></p>
+            <p>• WTI: Started at $69.36, closed at $67.25 (-3.04%)</p>
+            <p>• Brent: Started at $71.50, closed at $68.45 (-4.27%)</p>
+            <p>I've generated detailed weekly charts and volume analysis in the visualization panel.</p>
+        `;
+        
+        this.addMessage('bot', response);
+        this.generateOilWeeklyChart();
+    }
+
+    handleComparisonQuery(query) {
+        // Extract commodities from comparison query
+        const commodities = [];
+        Object.keys(this.commodityData).forEach(key => {
+            const name = this.formatCommodityName(key).toLowerCase();
+            if (query.includes(name) || query.includes(key)) {
+                commodities.push(key);
+            }
+        });
+
+        if (commodities.length >= 2) {
+            let response = '<p><strong>Commodity Comparison:</strong></p>';
+            commodities.forEach(commodity => {
+                const data = this.commodityData[commodity];
+                const name = this.formatCommodityName(commodity);
+                response += `<p><strong>${name}:</strong> $${data.price.toFixed(2)} (${data.change >= 0 ? '+' : ''}${data.change_percent.toFixed(2)}%)</p>`;
+            });
+            response += '<p>I\'ve generated a comparison chart for you.</p>';
+            
+            this.addMessage('bot', response);
+            this.generateComparisonChart(commodities);
+        } else {
+            this.addMessage('bot', '<p>Please specify which commodities you\'d like to compare. For example: "gold vs silver" or "compare oil and copper".</p>');
+        }
+    }
+
+    handlePortfolioQuery(query) {
+        if (query.includes('add')) {
+            // Extract symbol (basic implementation)
+            const words = query.split(' ');
+            const symbolIndex = words.findIndex(word => word.toLowerCase() === 'add') + 1;
+            const symbol = words[symbolIndex]?.toUpperCase();
+            
+            if (symbol) {
+                this.addToPortfolio(symbol);
+                this.addMessage('bot', `<p>I'd love to help with portfolio management! However, this feature requires real-time stock data integration.</p><p>For now, you can ask me about commodity prices and market analysis. Would you like to see current gold, silver, or oil prices instead?</p>`);
+            } else {
+                this.addMessage('bot', '<p>Please specify a symbol to add. For example: "add AAPL to portfolio"</p>');
+            }
+        } else {
+            this.addMessage('bot', '<p>Portfolio features include adding/removing holdings and tracking performance. What would you like to do with your portfolio?</p>');
+        }
+    }
+
+    handleGeneralFinancialQuery(query) {
+        this.addMessage('bot', '<p>I specialize in commodity market analysis and prices. I can help you with:</p><ul><li>Gold, Silver, Oil, Natural Gas, and Copper prices</li><li>Weekly market reviews and analysis</li><li>Commodity comparisons and charts</li><li>Market trends and insights</li></ul><p>What specific commodity information can I provide for you?</p>');
+    }
+
+    handleNonFinancialQuery() {
+        this.addMessage('bot', '<p>I\'m a specialized financial assistant focused on commodity markets and trading. I can help you with:</p><ul><li>Real-time commodity prices (Gold, Silver, Oil, Natural Gas, Copper)</li><li>Market analysis and weekly reviews</li><li>Price charts and technical analysis</li><li>Commodity comparisons</li></ul><p>Please ask me about financial markets or commodity prices!</p>');
+    }
+
+    // Chart generation methods
+    generateCommodityChart(commodity) {
+        const data = this.commodityData[commodity];
+        const name = this.formatCommodityName(commodity);
+        
+        // Generate sample historical data for chart
+        const dates = this.generateDateRange(30);
+        const prices = this.generatePriceHistory(data.price, 30);
+        
+        this.showChart();
+        this.createLineChart({
+            labels: dates,
+            datasets: [{
+                label: `${name} Price`,
+                data: prices,
+                borderColor: '#22d3ee',
+                backgroundColor: 'rgba(34, 211, 238, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        }, `${name} Price Trend (30 Days)`);
+        
+        this.showChartData(commodity, prices, dates);
+    }
+
+    generateOilComparisonChart() {
+        const dates = this.generateDateRange(7);
+        const wtiPrices = this.generatePriceHistory(this.commodityData.wti_oil.price, 7);
+        const brentPrices = this.generatePriceHistory(this.commodityData.brent_oil.price, 7);
+        
+        this.showChart();
+        this.createLineChart({
+            labels: dates,
+            datasets: [
+                {
+                    label: 'WTI Oil',
+                    data: wtiPrices,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Brent Oil',
+                    data: brentPrices,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        }, 'Oil Prices Comparison');
+        
+        this.showOilComparisonData(wtiPrices, brentPrices, dates);
+    }
+
+    generateOilWeeklyChart() {
+        const { dates, wti_prices, brent_prices, volumes } = this.oilWeeklyData;
+        
+        this.showChart();
+        this.createLineChart({
+            labels: dates,
+            datasets: [
+                {
+                    label: 'WTI Weekly',
+                    data: wti_prices,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Brent Weekly',
+                    data: brent_prices,
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        }, 'Weekly Oil Price Analysis');
+        
+        this.showWeeklyData();
+    }
+
+    generateComparisonChart(commodities) {
+        const dates = this.generateDateRange(7);
+        const datasets = [];
+        const colors = ['#22d3ee', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+        
+        commodities.forEach((commodity, index) => {
+            const data = this.commodityData[commodity];
+            const prices = this.generatePriceHistory(data.price, 7);
+            const name = this.formatCommodityName(commodity);
+            
+            datasets.push({
+                label: name,
+                data: prices,
+                borderColor: colors[index % colors.length],
+                backgroundColor: `${colors[index % colors.length]}20`,
+                fill: false,
+                tension: 0.4
+            });
+        });
+        
+        this.showChart();
+        this.createLineChart({
+            labels: dates,
+            datasets: datasets
+        }, 'Commodity Comparison');
+    }
+
+    showChart() {
+        document.querySelector('.chart-placeholder').style.display = 'none';
+        document.getElementById('chartCanvas').style.display = 'block';
+    }
+
+    createLineChart(data, title) {
+        const ctx = document.getElementById('chartCanvas').getContext('2d');
+        
+        if (this.currentChart) {
+            this.currentChart.destroy();
+        }
+        
+        this.currentChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title,
+                        color: '#e4e4e7',
+                        font: { size: 14, weight: 'bold' }
+                    },
+                    legend: {
+                        labels: { color: '#e4e4e7' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#9ca3af' },
+                        grid: { color: '#374151' }
+                    },
+                    y: {
+                        ticks: { color: '#9ca3af' },
+                        grid: { color: '#374151' }
+                    }
+                }
+            }
+        });
+    }
+
+    updateChartType(type) {
+        if (this.currentChart && type !== 'line') {
+            this.currentChart.config.type = type;
+            this.currentChart.update();
+        }
+    }
+
+    showChartData(commodity, prices, dates) {
+        const data = this.commodityData[commodity];
+        const chartData = document.getElementById('chartData');
+        
+        let tableHTML = `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Current Price</td><td>$${data.price.toFixed(2)}</td></tr>
+                    <tr><td>Change</td><td class="${data.change >= 0 ? 'price-change--positive' : 'price-change--negative'}">${data.change >= 0 ? '+' : ''}${data.change.toFixed(2)}</td></tr>
+                    <tr><td>Change %</td><td class="${data.change_percent >= 0 ? 'price-change--positive' : 'price-change--negative'}">${data.change_percent >= 0 ? '+' : ''}${data.change_percent.toFixed(2)}%</td></tr>
+                    <tr><td>52W High</td><td>$${data.high_52w.toFixed(2)}</td></tr>
+                    <tr><td>52W Low</td><td>$${data.low_52w.toFixed(2)}</td></tr>
+                </tbody>
+            </table>
+        `;
+        
+        chartData.innerHTML = tableHTML;
+    }
+
+    showOilComparisonData(wtiPrices, brentPrices, dates) {
+        const chartData = document.getElementById('chartData');
+        const wtiData = this.commodityData.wti_oil;
+        const brentData = this.commodityData.brent_oil;
+        
+        let tableHTML = `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Oil Type</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WTI</td>
+                        <td>$${wtiData.price.toFixed(2)}</td>
+                        <td class="${wtiData.change_percent >= 0 ? 'price-change--positive' : 'price-change--negative'}">${wtiData.change_percent >= 0 ? '+' : ''}${wtiData.change_percent.toFixed(2)}%</td>
+                    </tr>
+                    <tr>
+                        <td>Brent</td>
+                        <td>$${brentData.price.toFixed(2)}</td>
+                        <td class="${brentData.change_percent >= 0 ? 'price-change--positive' : 'price-change--negative'}">${brentData.change_percent >= 0 ? '+' : ''}${brentData.change_percent.toFixed(2)}%</td>
+                    </tr>
+                    <tr>
+                        <td>Spread</td>
+                        <td>$${(brentData.price - wtiData.price).toFixed(2)}</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+        
+        chartData.innerHTML = tableHTML;
+    }
+
+    showWeeklyData() {
+        const chartData = document.getElementById('chartData');
+        const { dates, events } = this.oilWeeklyData;
+        
+        let tableHTML = `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Key Event</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        dates.forEach((date, index) => {
+            tableHTML += `<tr><td>${date}</td><td>${events[index]}</td></tr>`;
+        });
+        
+        tableHTML += '</tbody></table>';
+        chartData.innerHTML = tableHTML;
+    }
+
+    // Utility methods
+    generateDateRange(days) {
+        const dates = [];
+        const today = new Date();
+        
+        for (let i = days - 1; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        }
+        
+        return dates;
+    }
+
+    generatePriceHistory(currentPrice, days) {
+        const prices = [];
+        let price = currentPrice;
+        
+        for (let i = 0; i < days; i++) {
+            // Generate realistic price fluctuations
+            const change = (Math.random() - 0.5) * (currentPrice * 0.02);
+            price = Math.max(price + change, currentPrice * 0.9);
+            prices.push(parseFloat(price.toFixed(2)));
+        }
+        
+        // Ensure last price matches current price
+        prices[prices.length - 1] = currentPrice;
+        
+        return prices;
+    }
+
+    addToPortfolio(symbol) {
+        if (!this.portfolio.find(item => item.symbol === symbol)) {
+            this.portfolio.push({
+                symbol: symbol,
+                quantity: 1,
+                purchasePrice: 100, // Mock price
+                currentPrice: 105 // Mock current price
+            });
+            this.updatePortfolioDisplay();
+        }
+    }
+
+    updatePortfolioDisplay() {
+        const portfolioHoldings = document.getElementById('portfolioHoldings');
+        
+        if (this.portfolio.length === 0) {
+            portfolioHoldings.innerHTML = '<p class="empty-portfolio">No holdings yet</p>';
+            return;
+        }
+        
+        let html = '';
+        this.portfolio.forEach(holding => {
+            const gain = (holding.currentPrice - holding.purchasePrice) * holding.quantity;
+            const gainPercent = ((holding.currentPrice - holding.purchasePrice) / holding.purchasePrice) * 100;
+            
+            html += `
+                <div class="portfolio-item">
+                    <div class="portfolio-symbol">${holding.symbol}</div>
+                    <div class="portfolio-gain ${gain >= 0 ? 'price-change--positive' : 'price-change--negative'}">
+                        ${gain >= 0 ? '+' : ''}$${gain.toFixed(2)} (${gainPercent.toFixed(2)}%)
+                    </div>
+                </div>
+            `;
+        });
+        
+        portfolioHoldings.innerHTML = html;
+    }
+
+    refreshData() {
+        // Simulate data refresh with small random changes
+        Object.keys(this.commodityData).forEach(key => {
+            const data = this.commodityData[key];
+            const randomChange = (Math.random() - 0.5) * (data.price * 0.01);
+            data.price += randomChange;
+            data.change += randomChange;
+            data.change_percent = (data.change / (data.price - data.change)) * 100;
+        });
+        
+        this.renderCommodities();
+        
+        // Show refresh feedback
+        const refreshBtn = document.getElementById('refreshBtn');
+        refreshBtn.style.color = '#22c55e';
+        setTimeout(() => {
+            refreshBtn.style.color = '';
+        }, 1000);
+    }
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    new FinanceBotPro();
+});
+    </script>
+</body>
+</html>
