@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceBot Pro - AI Financial Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0e1a;
+            --secondary-bg: #1a1f2e;
+            --accent-bg: #2a3441;
+            --primary-text: #ffffff;
+            --secondary-text: #b8c5d6;
+            --accent-text: #64b5f6;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --error-color: #f44336;
+            --border-color: #3a4553;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--secondary-bg);
+            border-radius: 0;
+            box-shadow: var(--shadow-heavy);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--secondary-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            background: var(--gradient-primary);
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: #ffd700;
+        }
+
+        .tagline {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .market-overview {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--accent-text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .commodity-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .commodity-card {
+            background: var(--accent-bg);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .commodity-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+            border-color: var(--accent-text);
+        }
+
+        .commodity-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .commodity-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .commodity-symbol {
+            font-size: 12px;
+            color: var(--secondary-text);
+            background: var(--primary-bg);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .commodity-price {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .commodity-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .change-positive {
+            color: var(--success-color);
+        }
+
+        .change-negative {
+            color: var(--error-color);
+        }
+
+        .quick-actions {
+            padding: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--primary-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-button:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+        }
+
+        /* Main Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--primary-bg);
+        }
+
+        .chat-header {
+            padding: 20px 24px;
+            background: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .control-button {
+            padding: 8px 12px;
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--primary-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .control-button:hover {
+            background: var(--accent-text);
+            color: var(--primary-bg);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--gradient-accent);
+        }
+
+        .message.assistant .message-avatar {
+            background: var(--gradient-primary);
+        }
+
+        .message-content {
+            background: var(--secondary-bg);
+            padding: 16px 20px;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: var(--gradient-accent);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--secondary-text);
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .message.assistant .message-time {
+            text-align: left;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 16px 20px;
+            background: var(--secondary-bg);
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            max-width: 85%;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-text);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .chat-input-container {
+            padding: 20px 24px;
+            background: var(--secondary-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input-wrapper:focus-within {
+            border-color: var(--accent-text);
+            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.1);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--primary-text);
+            font-size: 16px;
+            resize: none;
+            min-height: 24px;
+            max-height: 120px;
+            line-height: 1.5;
+        }
+
+        .chat-input::placeholder {
+            color: var(--secondary-text);
+        }
+
+        .send-button {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--secondary-text);
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--primary-text);
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        .suggested-questions {
+            display: grid;
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .suggested-question {
+            padding: 16px 20px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .suggested-question:hover {
+            background: var(--accent-bg);
+            border-color: var(--accent-text);
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                height: 100vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+                transform: translateY(-100%);
+                position: absolute;
+                z-index: 1000;
+                border-radius: 0 0 16px 16px;
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .chat-header {
+                padding: 16px 20px;
+            }
+
+            .chat-messages {
+                padding: 16px 20px;
+            }
+
+            .chat-input-container {
+                padding: 16px 20px;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .commodity-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-text);
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        /* Menu Toggle for Mobile */
+        .menu-toggle {
+            display: none;
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            color: var(--primary-text);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    FinanceBot Pro
+                </div>
+                <div class="tagline">AI-Powered Financial Assistant</div>
+            </div>
+
+            <div class="market-overview">
+                <div class="section-title">
+                    <i class="fas fa-coins"></i>
+                    Live Market Data
+                </div>
+                <div class="commodity-grid" id="commodityGrid">
+                    <!-- Commodity cards will be populated here -->
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <div class="section-title">
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </div>
+                <button class="action-button" onclick="askQuestion('What are today\'s market trends?')">
+                    <i class="fas fa-trending-up"></i>
+                    Market Trends
+                </button>
+                <button class="action-button" onclick="askQuestion('Should I invest in gold right now?')">
+                    <i class="fas fa-coins"></i>
+                    Investment Advice
+                </button>
+                <button class="action-button" onclick="askQuestion('Analyze oil market conditions')">
+                    <i class="fas fa-oil-can"></i>
+                    Oil Analysis
+                </button>
+                <button class="action-button" onclick="askQuestion('What are the risks in current markets?')">
+                    <i class="fas fa-shield-alt"></i>
+                    Risk Assessment
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <button class="menu-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span>Financial Assistant</span>
+                    <div class="status-indicator"></div>
+                </div>
+                <div class="chat-controls">
+                    <button class="control-button" onclick="clearChat()">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button class="control-button" onclick="refreshData()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <div class="welcome-title">Welcome to FinanceBot Pro</div>
+                    <div class="welcome-subtitle">Your AI-powered financial assistant for market analysis and trading insights</div>
+                    
+                    <div class="suggested-questions">
+                        <div class="suggested-question" onclick="askQuestion('What\'s the current price of gold and silver?')">
+                            What's the current price of gold and silver?
+                        </div>
+                        <div class="suggested-question" onclick="askQuestion('Give me an analysis of oil markets today')">
+                            Give me an analysis of oil markets today
+                        </div>
+                        <div class="suggested-question" onclick="askQuestion('What are the best investment opportunities right now?')">
+                            What are the best investment opportunities right now?
+                        </div>
+                        <div class="suggested-question" onclick="askQuestion('How do economic indicators affect commodity prices?')">
+                            How do economic indicators affect commodity prices?
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Ask about markets, commodities, trading strategies..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let conversationHistory = [];
+        let isLoading = false;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCommodityData();
+            setupEventListeners();
+            
+            // Auto-refresh commodity data every 30 seconds
+            setInterval(loadCommodityData, 30000);
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const chatInput = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+
+            // Handle Enter key in chat input
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        }
+
+        // Load commodity data
+        async function loadCommodityData() {
+            try {
+                const response = await fetch('/api/commodities');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayCommodityData(data.data);
+                }
+            } catch (error) {
+                console.error('Failed to load commodity data:', error);
+            }
+        }
+
+        // Display commodity data in sidebar
+        function displayCommodityData(commodities) {
+            const grid = document.getElementById('commodityGrid');
+            grid.innerHTML = '';
+
+            Object.values(commodities).forEach(commodity => {
+                const card = document.createElement('div');
+                card.className = 'commodity-card';
+                card.onclick = () => askQuestion(`Tell me about ${commodity.name} market conditions and price analysis`);
+
+                const changeClass = commodity.change >= 0 ? 'change-positive' : 'change-negative';
+                const changeIcon = commodity.change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+
+                card.innerHTML = `
+                    <div class="commodity-header">
+                        <div class="commodity-name">${commodity.name}</div>
+                        <div class="commodity-symbol">${commodity.symbol}</div>
+                    </div>
+                    <div class="commodity-price">$${commodity.price.toFixed(2)}</div>
+                    <div class="commodity-change ${changeClass}">
+                        <i class="fas ${changeIcon}"></i>
+                        ${commodity.change >= 0 ? '+' : ''}${commodity.change.toFixed(2)} (${commodity.changePercent.toFixed(2)}%)
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Send message function
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message || isLoading) return;
+
+            // Clear input and add user message
+            input.value = '';
+            input.style.height = 'auto';
+            addMessage('user', message);
+
+            // Show typing indicator
+            showTypingIndicator();
+            isLoading = true;
+            updateSendButton();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversationHistory: conversationHistory
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Remove typing indicator
+                hideTypingIndicator();
+
+                if (data.success) {
+                    addMessage('assistant', data.message);
+                    
+                    // Update conversation history
+                    conversationHistory.push(
+                        { role: 'user', content: message },
+                        { role: 'assistant', content: data.message }
+                    );
+
+                    // Keep conversation history manageable (last 10 exchanges)
+                    if (conversationHistory.length > 20) {
+                        conversationHistory = conversationHistory.slice(-20);
+                    }
+                } else {
+                    addMessage('assistant', 'I apologize, but I encountered an error processing your request. Please try again.');
+                    showError(data.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('assistant', 'I\'m having trouble connecting to the server. Please check your connection and try again.');
+                showError('Network error: ' + error.message);
+            } finally {
+                isLoading = false;
+                updateSendButton();
+            }
+        }
+
+        // Add message to chat
+        function addMessage(role, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Remove welcome message if it exists
+            const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.innerHTML = formatMessage(content);
+
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            messageTime.textContent = new Date().toLocaleTimeString();
+
+            messageDiv.appendChild(avatar);
+            const contentWrapper = document.createElement('div');
+            contentWrapper.appendChild(messageContent);
+            contentWrapper.appendChild(messageTime);
+            messageDiv.appendChild(contentWrapper);
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Format message content
+        function formatMessage(content) {
+            // Convert markdown-like formatting to HTML
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>')
+                .replace(/- (.*?)(?=\n|$)/g, '• $1');
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typingIndicator';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = '<i class="fas fa-robot"></i>';
+
+            const typingContent = document.createElement('div');
+            typingContent.className = 'typing-indicator';
+            typingContent.innerHTML = `
+                <span>FinanceBot is thinking</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+
+            typingDiv.appendChild(avatar);
+            typingDiv.appendChild(typingContent);
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Update send button state
+        function updateSendButton() {
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = isLoading;
+            sendButton.innerHTML = isLoading ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-paper-plane"></i>';
+        }
+
+        // Ask predefined question
+        function askQuestion(question) {
+            const input = document.getElementById('chatInput');
+            input.value = question;
+            sendMessage();
+        }
+
+        // Clear chat
+        function clearChat() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = `
+                <div class="welcome-message">
+                    <div class="welcome-title">Chat Cleared</div>
+                    <div class="welcome-subtitle">Start a new conversation with your financial assistant</div>
+                </div>
+            `;
+            conversationHistory = [];
+        }
+
+        // Refresh data
+        function refreshData() {
+            loadCommodityData();
+            showNotification('Market data refreshed');
+        }
+
+        // Toggle sidebar (mobile)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Show error message
+        function showError(message) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            messagesContainer.appendChild(errorDiv);
+            
+            // Remove error after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // Show notification
+        function showNotification(message) {
+            // Simple notification - you could enhance this with a proper notification system
+            console.log('Notification:', message);
+        }
+
+        // Close sidebar when clicking outside (mobile)
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !menuToggle.contains(e.target) && 
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>
